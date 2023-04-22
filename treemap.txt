@@ -19,6 +19,8 @@ rectangle_size = 0
 
 
 
+
+
 def draw_treemap(weight_list, label_list):
 
     df = pd.DataFrame({'nb_people':weight_list, 'group':label_list })
