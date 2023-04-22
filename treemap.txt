@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import squarify    # pip install squarify (algorithm for treemap)
+import squarify_modify  as  squarify  # pip install squarify (algorithm for treemap)
 import pandas as pd
 
 # Create a data frame with fake data
@@ -8,12 +8,24 @@ import pandas as pd
 
 weight_list = [8,3,4,2]
 label_list = ["group A", "group B", "group C", "group D"]
+
+
+
+# 间隙像素,如果为0则没有间隙
+Gap_size=2
+# 圆角半径，如果为0则没有圆角
+rectangle_size = 0
+
+
+
+
 def draw_treemap(weight_list, label_list):
 
     df = pd.DataFrame({'nb_people':weight_list, 'group':label_list })
 
     # plot it
-    squarify.plot(sizes=df['nb_people'], label=df['group'], alpha=.8 )
+    
+    squarify.plot(sizes=df['nb_people'], label=df['group'], alpha=.8,rectangle_size=rectangle_size,pad=Gap_size)
     plt.axis('off')
     plt.show()
     
