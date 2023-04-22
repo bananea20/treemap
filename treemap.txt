@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import squarify_modify  as  squarify  # pip install squarify (algorithm for treemap)
+import squarify_modify  as  squarify  
 import pandas as pd
 
 # Create a data frame with fake data
