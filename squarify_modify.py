@@ -219,8 +219,8 @@ def normalize_sizes(sizes, dx, dy):
 
 def plot(
     sizes,
-    norm_x=100,
-    norm_y=100,
+    norm_x=1000,
+    norm_y=1000,
     rectangle_size=False,
     color=None,
     label=None,
@@ -229,6 +229,7 @@ def plot(
     pad=False,
     bar_kwargs=None,
     text_kwargs=None,
+    images_paths=None,
     **kwargs
 ):
     """Plotting with Matplotlib.
@@ -265,7 +266,11 @@ def plot(
 
     import matplotlib.pyplot as plt
     from matplotlib.patches import Rectangle, FancyBboxPatch
-
+    import matplotlib.pyplot as plt
+    import matplotlib.transforms as transforms
+    from PIL import Image, ImageOps
+    import numpy as np
+    from function import round_corner_image,circle_corner
 
     if ax is None:
         ax = plt.gca()
@@ -302,21 +307,68 @@ def plot(
         value = []
         
     # print (rects,color, label)    
-    for rect, color in zip(rects, color):
-        # if is_rectangle:
-            r = FancyBboxPatch(
-                (rect["x"], rect["y"]),
-                rect["dx"],
-                rect["dy"],
-                boxstyle=f"round,pad=0,rounding_size={rectangle_size}",
-                fc=color,
-                ec="white",
-                **bar_kwargs
-            )
-            ax.add_patch(r)
+    # for rect, color,image_path in zip(rects, color,images_paths):
+    #     # if is_rectangle:
+        
+    #         img = Image.open(image_path).convert("RGBA")
+    #         img = img.resize((int(rect["dx"]), int(rect["dy"])), Image.BILINEAR)  # 缩放图片至矩形大小
+    #         # img.show()
+    #         image_array = np.array(img)
+            
+    #         r = FancyBboxPatch(
+    #             (rect["x"], rect["y"]),
+    #             rect["dx"],
+    #             rect["dy"],
+    #             boxstyle=f"round,pad=0,rounding_size={rectangle_size}",
+    #             fc=color,
+    #             ec="white",
+    #             **bar_kwargs
+    #         )
+    #         ax.add_patch(r)
+    #         ax.imshow(
+    #             image_array, 
+    #             extent=[
+    #                 rect["x"], 
+    #                 rect["x"] +rect["dx"], 
+    #                 rect["y"], 
+    #                 rect["y"] + rect["dy"]
+    #             ], 
+    #             aspect='auto', 
+    #             zorder=-1)
 
-     
                         
+                        
+    for rect, color, image_path in zip(rects, color, images_paths):
+        img = Image.open(image_path).convert("RGBA")
+        img = img.resize((int(rect["dx"]), int(rect["dy"])), Image.BILINEAR)
+        img = round_corner_image(img, rectangle_size)  # 使用圆角函数
+        # img = circle_corner(img, rectangle_size)
+        img.show()
+        image_array = np.array(img)
+
+        # r = FancyBboxPatch(
+        #     (rect["x"], rect["y"]),
+        #     rect["dx"],
+        #     rect["dy"],
+        #     boxstyle=f"round,pad=0,rounding_size={rectangle_size}",
+        #     fc='white',
+        #     ec="white",
+        #     **bar_kwargs
+        # )
+        # ax.add_patch(r)
+        
+        ax.imshow(
+            image_array,
+            extent=[
+                rect["x"],
+                rect["x"] + rect["dx"],
+                rect["y"],
+                rect["y"] + rect["dy"],
+            ],
+            aspect="auto",
+            zorder=-1,
+        )
+
             
     # ax.bar(
     #     x, dy, width=dx, bottom=y, color=color, label=label, align="edge", **bar_kwargs

@@ -29,4 +29,4 @@ def draw_treemap(weight_list, label_list):
     
 
     
-draw_treemap(weight_list, label_list)
+#  img = round_corner_image(img, 10)  # 使用圆角函数
