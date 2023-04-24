@@ -179,9 +179,9 @@ def padded_squarify(sizes, x, y, dx, dy,gap_size):
     """
     rects = squarify(sizes, x, y, dx, dy)
     for rect in rects:
-        print("before: ",rect)
+        # print("before: ",rect)
         pad_rectangle(rect,gap_size)  
-        print("after: ",rect)
+        # print("after: ",rect)
     return rects
 '''
 
@@ -333,9 +333,9 @@ def plot(
 
     if not label is None:
         va = "center" if value is None else "bottom"
-        print(label)
+        # print(label)
         for l, r in zip(label, rects):
-            print (l)
+            # print (l)
             x, y, dx, dy = r["x"], r["y"], r["dx"], r["dy"]
             ax.text(x + dx / 2, y + dy / 2, l, va=va, ha="center", **text_kwargs)
 

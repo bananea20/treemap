@@ -6,9 +6,18 @@ from function import *
 
 
 
-weight_list = [8,3,4,2]
-label_list = ["group A", "group B", "group C", "group D"]
-value = [1,2,3,4]
+# example : weight_list = [4,3,1,10,2,3,6,1,3,2] 
+
+num_weights = 10
+max_weight = 10
+weight_list = generate_weight_list(num_weights, max_weight)
+print(weight_list)
+
+# example : label_list = ["group A", "group B", "group C", "group D", ... ]
+num_groups = num_weights
+label_list = generate_group_list(num_groups)
+print(label_list)
+
 
 
 
@@ -23,7 +32,7 @@ def draw_treemap(weight_list, label_list):
 
     # plot it
     
-    squarify.plot(sizes=df['weight'], label=df['group'], alpha=.8,rectangle_size=rectangle_size,pad=Gap_size,value=value)
+    squarify.plot(sizes=df['weight'], label=df['group'], alpha=.8,rectangle_size=rectangle_size,pad=Gap_size,value=[])
     plt.axis('off')
     plt.show()
     
