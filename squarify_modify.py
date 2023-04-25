@@ -263,6 +263,9 @@ def plot(
     matplotlib.axes.Axes
         Matplotlib Axes
     """
+    
+    
+    
 
     import matplotlib.pyplot as plt
     from matplotlib.patches import Rectangle, FancyBboxPatch
