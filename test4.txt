@@ -1,0 +1,124 @@
+import openai
+# 注意：代码中加入了 try,except 用于应对访问速度过快出现的报错
+# 但是由于本人的coding能力较差，这会把所有的报错都隐藏起来
+# 所以在初次调试的时候，特别是测试你的网络环境的时候。应当删除 try except 语句
+
+# api_key = "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"
+# api_key = "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"
+api_key = "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"
+
+
+
+openai.api_key = api_key
+
+def askChatGPT(messages):
+    MODEL = "gpt-3.5-turbo"
+    response = openai.ChatCompletion.create(
+        model=MODEL,
+        messages = messages,
+        temperature=1)
+    return response['choices'][0]['message']['content']
+
+def transform_format(input_list):
+    exe1 = {
+        'ids': [],
+        'labels': [],
+        'parents': [],
+        'extra_info': [],
+        'click_info': []
+    }
+
+    for i, item in enumerate(input_list):
+        # 分割输入信息
+        item_parts = item.split(' - ')
+        # 添加ids, 其中 'A' 的ASCII值为 65
+        exe1['ids'].append(chr(65+i))
+        # 添加labels
+        exe1['labels'].append(item_parts[0].split('.')[1].strip())
+        # 添加parents, 根据题目，这里都为空字符串
+        exe1['parents'].append('')
+        # 添加extra_info
+        exe1['extra_info'].append(item_parts[1])
+        # 添加click_info
+        exe1['click_info'].append(item_parts[2])
+
+    return exe1
+
+
+
+mes = "请随机给我3个科技的话题, 每个话题用一句话的描述, 并每个话题给我一个150-200字的详细介绍,每个话题结束请用'\n'结束，其他地方请必免使用'\n'"
+exe = "返回的格式：话题-话题描述-话题详细介绍 "
+exe1 = "例子：1.人工智能AI-人工智能是一种使得机器具备自主学习、推理和决策的技术，其应用场景涵盖了医疗、金融、制造等各个领域-人工智能（AI）是一种模拟人脑的计算机程序，能够自己学习、解决问题和为人类做出决策，是一种有着广泛影响力的技术。虽然现在的应用场景和成果还不能实现完全的自动化，但是它将在未来改变人类社会的方方面面。在医疗领域，人工智能可以通过识别并分析大量的医疗数据，帮助医生更快、更准确地诊断疾病并治疗患者。在金融领域，它可以通过智能风控系统和交易算法提高投资效率和风险控制能力。在制造领域，人工智能可以通过智能生产线、无人机等技术提高生产效率和线上质量。"
+
+mess = mes + exe + exe1
+messages = [
+    {"role": "system", "content": "You are a helpful assistant."},
+    {"role": "user", "content": mess}
+]
+
+answer = askChatGPT(messages)
+
+# answer
+input_list = answer.split('\n\n')
+# input_list
+
+from jupyter_dash import JupyterDash
+import dash_core_components as dcc
+import dash_html_components as html
+from dash.dependencies import Input, Output, State
+import plotly.graph_objects as go
+import pandas as pd
+import json
+
+app = JupyterDash(__name__)
+
+
+df = pd.DataFrame(transform_format(input_list))
+
+fig = go.Figure(go.Treemap(
+    ids = df['ids'],
+    labels = df['labels'],
+    parents = df['parents'],
+    text = df['extra_info'].tolist()
+))
+
+app.layout = html.Div([
+    dcc.Graph(
+        id='my-graph',
+        figure=fig
+    ),
+    html.Pre(id='click-data', style={'padding': '10px'}),
+    html.Div(id='text-storage', style={'display': 'none'}),
+    html.Div(id='node-clicked', style={'display': 'none'})
+])
+
+@app.callback(
+    Output('my-graph', 'figure'),
+    Output('text-storage', 'children'),
+    Output('node-clicked', 'children'),
+    Input('my-graph', 'clickData'),
+    State('my-graph', 'figure'),
+    State('text-storage', 'children'),
+    State('node-clicked', 'children'))
+def update_figure(clickData, fig, stored_text, clicked_node):
+    if clickData:
+        point_number = clickData['points'][0]['pointNumber']
+        if stored_text is None:
+            stored_text = json.dumps(fig['data'][0]['text'])
+        if clicked_node is None or clicked_node != point_number:
+            fig['data'][0]['text'] = json.loads(stored_text)
+            fig['data'][0]['text'][point_number] = df.loc[point_number, 'click_info']
+            clicked_node = point_number
+        else:
+            fig['data'][0]['text'] = json.loads(stored_text)
+            clicked_node = None
+    else:
+        if stored_text is not None:
+            fig['data'][0]['text'] = json.loads(stored_text)
+        clicked_node = None
+
+    return fig, stored_text, clicked_node
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
+
